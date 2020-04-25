@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Line usage calculator</title>
+	<script src="js/jquery-3.5.0.min.js"></script>
+	<script src="js/chess.js"></script>
+	<script src="js/chessboard-1.0.0.min.js"></script>
+	<link rel="stylesheet" type="text/css" href="css/chessboard-1.0.0.min.css">
+
+	<style type="text/css">
+		body {
+			margin-right: 420px;
+			font-family: monospace;
+		}
+		body * {
+			box-sizing: border-box;
+		}
+		#explorer {
+			position: fixed;
+			right: 10px;
+			top: 10px;
+		}
+		#board {
+			width: 412px;
+		}
+		#pgn {
+			display: inline;
+			font-size: 1.5em;
+			cursor: pointer;
+			text-decoration: underline;
+			color: blue;
+		}
+		label.bold {
+			font-weight: bold;
+			text-decoration: underline;
+		}
+		input[type=checkbox] {
+			position: relative;
+			left: -5px;
+			top: 3px;
+		}
+		#lichessControl {
+			display: none;
+		}
+	</style>
+
+	<style type="text/css">
+		#explorer-moves {
+			border: 1px solid;
+			border-top: none;
+			display: none;
+		}
+		.explorer-move {
+			height: 20px;
+			padding-right: 1px;
+		}
+		.explorer-move-name {
+			height: 20px;
+			line-height: 20px;
+			width: 12%;
+			float: left;
+			text-align: center;
+		}
+		.explorer-move-use {
+			height: 20px;
+			line-height: 20px;
+			width: 23%;
+			float: left;
+			text-align: right;
+			padding-right: 3px;
+		}
+		.explorer-bar {
+			text-align: center;
+			width: 65%;
+			float: left;
+			height: 16px;
+			margin-top: 2px;
+			border: 1px solid #ccc;
+			overflow: hidden;
+			border-radius: 4px;
+		}
+		.explorer-bar-white,
+		.explorer-bar-draw,
+		.explorer-bar-black {
+			float: left;
+			height: 16px;
+		}
+		.explorer-bar-white:after,
+		.explorer-bar-draw:after,
+		.explorer-bar-black:after {
+			content: "%";
+		}
+		.explorer-bar-white {
+			background-color: #fff;
+			color: black;
+			box-shadow: 0 -5px 7px rgba(0,0,0,0.1) inset;
+		}
+		.explorer-bar-draw {
+			background-color: #a0a0a0;
+			color: white;
+			box-shadow: 0 5px 7px rgba(255,255,255,0.2) inset;
+		}
+		.explorer-bar-black {
+			background-color: #555;
+			color: white;
+			box-shadow: 0 5px 7px rgba(255,255,255,0.2) inset;
+		}
+
+		#probabilities {
+			display: none;
+		}
+		table {
+			border-collapse: collapse;
+		}
+		table tr:nth-child(even) {
+			background-color: #dedede;
+		}
+		table tr:hover {
+			background-color: #aaa;
+		}
+		th, td {
+			padding: 5px 10px;
+			border: 1px solid #aaa;
+			text-align: left;
+		}
+		th {
+			background-color: #5e8790;
+			color: white;
+		}
+	</style>
+</head>
+<body>
+	<div id="explorer">
+		<div id="board"></div>
+		<div id="explorer-moves">
+			<div class="explorer-move">
+				<div class="explorer-move-name"></div>
+				<div class="explorer-move-use"></div>
+				<div class="explorer-bar"></div>
+			</div>
+			<div class="explorer-move">
+				<div class="explorer-move-name"></div>
+				<div class="explorer-move-use"></div>
+				<div class="explorer-bar"></div>
+			</div>
+			<div class="explorer-move">
+				<div class="explorer-move-name"></div>
+				<div class="explorer-move-use"></div>
+				<div class="explorer-bar"></div>
+			</div>
+			<div class="explorer-move">
+				<div class="explorer-move-name"></div>
+				<div class="explorer-move-use"></div>
+				<div class="explorer-bar"></div>
+			</div>
+			<div class="explorer-move">
+				<div class="explorer-move-name"></div>
+				<div class="explorer-move-use"></div>
+				<div class="explorer-bar"></div>
+			</div>
+			<div class="explorer-move">
+				<div class="explorer-move-name"></div>
+				<div class="explorer-move-use"></div>
+				<div class="explorer-bar"></div>
+			</div>
+			<div class="explorer-move">
+				<div class="explorer-move-name"></div>
+				<div class="explorer-move-use"></div>
+				<div class="explorer-bar"></div>
+			</div>
+			<div class="explorer-move">
+				<div class="explorer-move-name"></div>
+				<div class="explorer-move-use"></div>
+				<div class="explorer-bar"></div>
+			</div>
+			<div class="explorer-move">
+				<div class="explorer-move-name"></div>
+				<div class="explorer-move-use"></div>
+				<div class="explorer-bar"></div>
+			</div>
+			<div class="explorer-move">
+				<div class="explorer-move-name"></div>
+				<div class="explorer-move-use"></div>
+				<div class="explorer-bar"></div>
+			</div>
+			<div class="explorer-move">
+				<div class="explorer-move-name"></div>
+				<div class="explorer-move-use"></div>
+				<div class="explorer-bar"></div>
+			</div>
+			<div class="explorer-move">
+				<div class="explorer-move-name"></div>
+				<div class="explorer-move-use"></div>
+				<div class="explorer-bar"></div>
+			</div>
+			<div class="explorer-move">
+				<div class="explorer-move-name"></div>
+				<div class="explorer-move-use"></div>
+				<div class="explorer-bar"></div>
+			</div>
+			<div class="explorer-move">
+				<div class="explorer-move-name"></div>
+				<div class="explorer-move-use"></div>
+				<div class="explorer-bar"></div>
+			</div>
+			<div class="explorer-move">
+				<div class="explorer-move-name"></div>
+				<div class="explorer-move-use"></div>
+				<div class="explorer-bar"></div>
+			</div>
+			<div class="explorer-move">
+				<div class="explorer-move-name"></div>
+				<div class="explorer-move-use"></div>
+				<div class="explorer-bar"></div>
+			</div>
+			<div class="explorer-move">
+				<div class="explorer-move-name"></div>
+				<div class="explorer-move-use"></div>
+				<div class="explorer-bar"></div>
+			</div>
+			<div class="explorer-move">
+				<div class="explorer-move-name"></div>
+				<div class="explorer-move-use"></div>
+				<div class="explorer-bar"></div>
+			</div>
+			<div class="explorer-move">
+				<div class="explorer-move-name"></div>
+				<div class="explorer-move-use"></div>
+				<div class="explorer-bar"></div>
+			</div>
+			<div class="explorer-move">
+				<div class="explorer-move-name"></div>
+				<div class="explorer-move-use"></div>
+				<div class="explorer-bar"></div>
+			</div>
+		</div>
+	</div>
+
+	<label class="bold">Current PGN:</label>
+	<div id="pgn"></div>
+	<br>
+	<br>
+	<div>
+		<label class="bold">Settings:</label>
+		<br>
+		<label>Masters</label>
+		<input type="radio" name="database" value="master" checked>
+		<br>
+		<label>Lichess</label>
+		<input id="lichessRadio" type="radio" name="database" value="lichess">
+		<br>
+		<div id="lichessControl">
+			<br>
+			<label class="bold">Average rating:</label>
+			<br>
+			<label>
+				1600
+				<input type="checkbox" name="ratings" value="1600" checked>
+			</label>
+			<label>
+				1800
+				<input type="checkbox" name="ratings" value="1800" checked>
+			</label>
+			<label>
+				2000
+				<input type="checkbox" name="ratings" value="2000" checked>
+			</label>
+			<label>
+				2200
+				<input type="checkbox" name="ratings" value="2200" checked>
+			</label>
+			<label>
+				2500
+				<input type="checkbox" name="ratings" value="2500" checked>
+			</label>
+
+			<br>
+
+			<label class="bold">Time control:</label>
+			<br>
+			<label>
+				Bullet
+				<input type="checkbox" name="speeds" value="bullet" checked>
+			</label>
+			<label>
+				Blitz
+				<input type="checkbox" name="speeds" value="blitz" checked>
+			</label>
+			<label>
+				Rapid
+				<input type="checkbox" name="speeds" value="rapid" checked>
+			</label>
+			<label>
+				Classical
+				<input type="checkbox" name="speeds" value="classical" checked>
+			</label>
+		</div>
+	</div>
+	<br>
+	<button onclick="getProbabilities()">Get probabilities!</button>
+	<br>
+	<br>
+	<div>
+		<table id="probabilities">
+			<thead>
+				<tr>
+					<th>Move</th>
+					<th>Probability</th>
+				</tr>
+			</thead>
+		</table>
+	</div>
+	<br>
+	<div id="totals"></div>
+</body>
+<script>
+	let lichessControl = $("#lichessControl");
+	let speeds = $("[name=speeds]");
+	let ratings = $("[name=ratings]");
+	let lichessRadio = $("#lichessRadio");
+	let explorerMoves = document.getElementById("explorer-moves");
+	let pgn = $("#pgn");
+	let probabilities = document.getElementById("probabilities");
+	let totals = document.getElementById("totals");
+
+	$("[name=database]").change(function() {
+		if(this.checked && this.value === "lichess") {
+			lichessControl.show();
+			getMoves();
+		} else {
+			lichessControl.hide();
+			getMoves();
+		}
+	});
+
+	$("[name=speeds],[name=ratings]").click(function() {
+		getMoves();
+	});
+
+	const chess = new Chess();
+	const board = Chessboard("board", {
+		position: "start",
+		onDrop: onMove,
+		onSnapEnd: () => board.position(chess.fen()),
+		pieceTheme: "./img/{piece}.png",
+		moveSpeed: 50,
+		draggable: true
+	});
+
+	window.onkeydown = function(e) {
+		if(e.key === "f") {
+			board.flip();
+		}
+	};
+	document.body.addEventListener("wheel", () => {
+		chess.undo();
+		board.position(chess.fen());
+		pgn.text(chess.pgn());
+		getMoves();
+	});
+	pgn.on("click", function(e) {
+		window.open("https://lichess.org/analysis/" + chess.fen(), "_blank");
+	});
+
+	getMoves();
+
+	function onMove(from, to, piece, oldPos, newPos) {
+		let valid = chess.move({from, to, promotion: "q"});
+		if(valid) {
+			pgn.text(chess.pgn());
+			getMoves();
+		} else {
+			//Undo move on the board
+			return 'snapback';
+		}
+	}
+
+	async function getProbabilities() {
+		if(chess.pgn().length === 0) {
+			return alert("You've got no moves!");
+		}
+
+		probabilities.style.display = "table";
+		for(let i = 0; i < probabilities.tBodies.length; i++) {
+			probabilities.removeChild(probabilities.tBodies[i]);
+		}
+		let tbody = probabilities.createTBody();
+
+		let tempGame = new Chess();
+		let moves = chess.history({verbose: true});
+
+		let whiteProbabilities = [];
+		let blackProbabilities = [];
+
+		for(let i = 0; i < moves.length; i++) {
+			let data = await fetch(generateURL(tempGame.fen())).then((r) => r.json());
+			await new Promise(r => setTimeout(r, 500)); //So we don't spam too much
+
+			let moveToPlay = moves[i].san;
+			let accumMoveCount = 0;
+			let reqMoveCount = 0;
+			for(let m = 0; m < data.moves.length; m++) {
+				let mm = data.moves[m];
+				let sum = mm.white + mm.draws + mm.black;
+				if(mm.san === moveToPlay) {
+					reqMoveCount = sum;
+				}
+				accumMoveCount += sum;
+			}
+			let probability = reqMoveCount / accumMoveCount;
+			if(Number.isNaN(probability)) {
+				probability = 0; //If there are no moves, causes 0/0 which is NaN
+			}
+
+			let tr = tbody.insertRow();
+			let td1 = tr.insertCell();
+			td1.innerText = moveToPlay;
+			let td2 = tr.insertCell();
+			td2.innerText = (100 * probability).toFixed(3) + "%";
+
+			if(i % 2 === 0) {
+				whiteProbabilities.push(probability);
+			} else {
+				blackProbabilities.push(probability);
+			}
+
+			tempGame.move(moveToPlay);
+		}
+
+		//Totals
+		let wpTotal = whiteProbabilities.reduce((s, a) => s * a);
+		let bpTotal = blackProbabilities.reduce((s, a) => s * a);
+		let whtml = `If you are white, and aim to play the line, chances to reach this position with given black play is <b>${(bpTotal*100).toFixed(3)}%</b>.`;
+		let bhtml = `If you are black, and aim to play the line, chances to reach this position with given white play is <b>${(wpTotal*100).toFixed(3)}%</b>.`;
+		totals.innerHTML = whtml + "<br><br>" + bhtml;
+	}
+
+	async function getMoves() {
+		let url = generateURL(chess.fen());
+		let data = await fetch(url).then((r) => r.json());
+		processLichessExplorerData(data);
+	}
+
+	function generateURL(fen) {
+		let speedsStr = speeds.toArray().filter(x => x.checked).map(x => "speeds[]=" + x.value).join("&");
+		let ratingsStr = ratings.toArray().filter(x => x.checked).map(x => "ratings[]=" + x.value).join("&");
+
+		return "https://explorer.lichess.ovh/" + (lichessRadio.prop("checked") ? "lichess" : "master") +
+			"?variant=standard" +
+			"&moves=20" +
+			"&fen=" + fen +
+			"&" + speedsStr +
+			"&" + ratingsStr;
+	}
+
+	function processLichessExplorerData(data) {
+		//Moves
+		explorerMoves.style.display = "block";
+		let moveArray = explorerMoves.getElementsByClassName("explorer-move");
+		for(let i = 0; i < moveArray.length; i++) {
+			let moveContainer = moveArray[i];
+			let moveBar = moveContainer.getElementsByClassName("explorer-bar")[0];
+			let moveName = moveContainer.getElementsByClassName("explorer-move-name")[0];
+			let moveUse = moveContainer.getElementsByClassName("explorer-move-use")[0];
+			removeLichessExplorerBar(moveBar);
+			moveName.textContent = "";
+			moveUse.textContent = "";
+			moveContainer.style.display = "none";
+		}
+		for(let i = 0; i < data.moves.length; i++) {
+			let moveData = data.moves[i];
+			let moveContainer = moveArray[i];
+			moveContainer.style.display = "";
+			let moveTotalGames = moveData.white + moveData.draws + moveData.black;
+			let moveBar = moveContainer.getElementsByClassName("explorer-bar")[0];
+			let moveName = moveContainer.getElementsByClassName("explorer-move-name")[0];
+			let moveUse = moveContainer.getElementsByClassName("explorer-move-use")[0];
+			createLichessExplorerBar(moveBar, moveData.white, moveData.draws, moveData.black, moveTotalGames);
+			moveName.textContent = moveData.san;
+			moveUse.textContent = moveTotalGames.toLocaleString();
+		}
+	}
+
+	function removeLichessExplorerBar(container) {
+		while(container.firstChild) {
+			container.removeChild(container.firstChild);
+		}
+	}
+
+	function createLichessExplorerBar(container, white, draw, black, total) {
+		if(total === 0) {
+			container.style.display = "none";
+			return;
+		}
+		container.style.display = "";
+
+		let whiteBar = document.createElement("div");
+		let drawBar = document.createElement("div");
+		let blackBar = document.createElement("div");
+
+		let whiteP = 100 * white / total;
+		let drawP = 100 * draw / total;
+		let blackP = 100 * black / total;
+
+		whiteBar.style.width = whiteP + "%";
+		drawBar.style.width = drawP + "%";
+		blackBar.style.width = blackP + "%";
+
+		whiteBar.textContent = Math.round(whiteP);
+		if(whiteP < 8) {
+			whiteBar.style.color = "rgba(0,0,0,0)";
+		}
+		drawBar.textContent = Math.round(drawP);
+		if(drawP < 8) {
+			drawBar.style.color = "rgba(0,0,0,0)";
+		}
+		blackBar.textContent = Math.round(blackP);
+		if(blackP < 8) {
+			blackBar.style.color = "rgba(0,0,0,0)";
+		}
+
+		whiteBar.className = "explorer-bar-white";
+		drawBar.className = "explorer-bar-draw";
+		blackBar.className = "explorer-bar-black";
+
+		container.appendChild(whiteBar);
+		container.appendChild(drawBar);
+		container.appendChild(blackBar);
+	}
+</script>
+</html>

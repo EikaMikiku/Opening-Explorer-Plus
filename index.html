@@ -322,6 +322,7 @@
 	let pgn = $("#pgn");
 	let probabilities = document.getElementById("probabilities");
 	let totals = document.getElementById("totals");
+	let allowedToScroll = true;
 
 	$("[name=database]").change(function() {
 		if(this.checked && this.value === "lichess") {
@@ -353,10 +354,16 @@
 		}
 	};
 	document.body.addEventListener("wheel", () => {
-		chess.undo();
-		board.position(chess.fen());
-		pgn.text(chess.pgn());
-		getMoves();
+		if(allowedToScroll) {
+			chess.undo();
+			board.position(chess.fen());
+			pgn.text(chess.pgn());
+			getMoves();
+			allowedToScroll = false;
+			setTimeout(() => {
+				allowedToScroll = true;
+			}, 60);
+		}
 	});
 	pgn.on("click", function(e) {
 		window.open("https://lichess.org/analysis/" + chess.fen(), "_blank");

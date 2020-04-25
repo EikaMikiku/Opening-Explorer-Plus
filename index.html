@@ -34,7 +34,7 @@
 			font-weight: bold;
 			text-decoration: underline;
 		}
-		input[type=checkbox] {
+		.settings input[type=checkbox] {
 			position: relative;
 			left: -5px;
 			top: 3px;
@@ -126,6 +126,9 @@
 		th {
 			background-color: #5e8790;
 			color: white;
+		}
+		td.exclude {
+			text-align: center;
 		}
 	</style>
 </head>
@@ -240,7 +243,7 @@
 	<div id="pgn"></div>
 	<br>
 	<br>
-	<div>
+	<div class="settings">
 		<label class="bold">Settings:</label>
 		<br>
 		<label>Masters</label>
@@ -306,6 +309,7 @@
 				<tr>
 					<th>Move</th>
 					<th>Probability</th>
+					<th>Exclude</th>
 				</tr>
 			</thead>
 		</table>
@@ -323,6 +327,8 @@
 	let probabilities = document.getElementById("probabilities");
 	let totals = document.getElementById("totals");
 	let allowedToScroll = true;
+	let whiteProbabilities = [];
+	let blackProbabilities = [];
 
 	$("[name=database]").change(function() {
 		if(this.checked && this.value === "lichess") {
@@ -383,6 +389,9 @@
 	}
 
 	async function getProbabilities() {
+		whiteProbabilities = [];
+		blackProbabilities = [];
+
 		if(chess.pgn().length === 0) {
 			return alert("You've got no moves!");
 		}
@@ -395,9 +404,6 @@
 
 		let tempGame = new Chess();
 		let moves = chess.history({verbose: true});
-
-		let whiteProbabilities = [];
-		let blackProbabilities = [];
 
 		for(let i = 0; i < moves.length; i++) {
 			let data = await fetch(generateURL(tempGame.fen())).then((r) => r.json());
@@ -424,6 +430,31 @@
 			td1.innerText = moveToPlay;
 			let td2 = tr.insertCell();
 			td2.innerText = (100 * probability).toFixed(3) + "%";
+			let td3 = tr.insertCell();
+			let input = document.createElement("input");
+			input.type = "checkbox";
+			input.onclick = () => {
+				input.original = probability;
+				let inverse = 1 / probability;
+
+				if(input.checked) {
+					if(i % 2 === 0) {
+						whiteProbabilities.push(inverse);
+					} else {
+						blackProbabilities.push(inverse);
+					}
+				} else {
+					if(i % 2 === 0) {
+						whiteProbabilities.push(probability);
+					} else {
+						blackProbabilities.push(probability);
+					}
+				}
+				setTotals();
+			};
+			td3.className = "exclude";
+			td3.appendChild(input);
+
 
 			if(i % 2 === 0) {
 				whiteProbabilities.push(probability);
@@ -435,6 +466,10 @@
 		}
 
 		//Totals
+		setTotals();
+	}
+
+	function setTotals() {
 		let wpTotal = whiteProbabilities.reduce((s, a) => s * a);
 		let bpTotal = blackProbabilities.reduce((s, a) => s * a);
 		let whtml = `If you are white, and aim to play the line, chances to reach this position with given black play is <b>${(bpTotal*100).toFixed(3)}%</b>.`;

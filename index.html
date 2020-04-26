@@ -18,17 +18,14 @@
 		#explorer {
 			position: fixed;
 			right: 10px;
-			top: 10px;
+			top: 32px;
 		}
 		#board {
 			width: 412px;
 		}
 		#pgn {
 			display: inline;
-			font-size: 1.5em;
-			cursor: pointer;
-			text-decoration: underline;
-			color: blue;
+			font-size: 1.25em;
 		}
 		label.bold {
 			font-weight: bold;
@@ -42,9 +39,7 @@
 		#lichessControl {
 			display: none;
 		}
-	</style>
 
-	<style type="text/css">
 		#explorer-moves {
 			border: 1px solid;
 			border-top: none;
@@ -129,6 +124,11 @@
 		}
 		td.exclude {
 			text-align: center;
+		}
+		.controls {
+			position: fixed;
+			top: 5px;
+			right: 10px;
 		}
 	</style>
 </head>
@@ -239,6 +239,12 @@
 		</div>
 	</div>
 
+	<div class="controls">
+		<button id="undo">Undo move</button>
+		<button id="flip">Flip board</button>
+		<button id="anal">Analysis</button>
+	</div>
+
 	<label class="bold">Current PGN:</label>
 	<div id="pgn"></div>
 	<br>
@@ -326,7 +332,6 @@
 	let pgn = $("#pgn");
 	let probabilities = document.getElementById("probabilities");
 	let totals = document.getElementById("totals");
-	let allowedToScroll = true;
 	let whiteProbabilities = [];
 	let blackProbabilities = [];
 
@@ -359,28 +364,25 @@
 			board.flip();
 		}
 	};
-	document.body.addEventListener("wheel", () => {
-		if(allowedToScroll) {
-			chess.undo();
-			board.position(chess.fen());
-			pgn.text(chess.pgn());
-			getMoves();
-			allowedToScroll = false;
-			setTimeout(() => {
-				allowedToScroll = true;
-			}, 60);
-		}
-	});
-	pgn.on("click", function(e) {
+	document.getElementById("undo").onclick = function() {
+		chess.undo();
+		board.position(chess.fen());
+		pgn.text(chess.pgn().replace(/\. /g, "."));
+		getMoves();
+	};
+	document.getElementById("flip").onclick = function() {
+		board.flip();
+	};
+	document.getElementById("anal").onclick = function() {
 		window.open("https://lichess.org/analysis/" + chess.fen(), "_blank");
-	});
+	};
 
 	getMoves();
 
 	function onMove(from, to, piece, oldPos, newPos) {
 		let valid = chess.move({from, to, promotion: "q"});
 		if(valid) {
-			pgn.text(chess.pgn());
+			pgn.text(chess.pgn().replace(/\. /g, "."));
 			getMoves();
 		} else {
 			//Undo move on the board
@@ -406,8 +408,10 @@
 		let moves = chess.history({verbose: true});
 
 		for(let i = 0; i < moves.length; i++) {
+			if(i > 0) {
+				await new Promise(r => setTimeout(r, 500)); //So we don't spam too much
+			}
 			let data = await fetch(generateURL(tempGame.fen())).then((r) => r.json());
-			await new Promise(r => setTimeout(r, 500)); //So we don't spam too much
 
 			let moveToPlay = moves[i].san;
 			let accumMoveCount = 0;

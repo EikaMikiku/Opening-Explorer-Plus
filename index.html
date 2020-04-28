@@ -60,20 +60,27 @@
 		.explorer-move-use {
 			height: 20px;
 			line-height: 20px;
-			width: 23%;
+			width: 20%;
 			float: left;
 			text-align: right;
 			padding-right: 3px;
 		}
 		.explorer-bar {
 			text-align: center;
-			width: 65%;
+			width: 52%;
 			float: left;
 			height: 16px;
 			margin-top: 2px;
 			border: 1px solid #ccc;
 			overflow: hidden;
 			border-radius: 4px;
+		}
+		.explorer-percent {
+			float: right;
+			width: 15%;
+			text-align: right;
+			line-height: 20px;
+			padding-right: 2px;
 		}
 		.explorer-bar-white,
 		.explorer-bar-draw,
@@ -141,101 +148,121 @@
 				<div class="explorer-move-name"></div>
 				<div class="explorer-move-use"></div>
 				<div class="explorer-bar"></div>
+				<div class="explorer-percent"></div>
 			</div>
 			<div class="explorer-move">
 				<div class="explorer-move-name"></div>
 				<div class="explorer-move-use"></div>
 				<div class="explorer-bar"></div>
+				<div class="explorer-percent"></div>
 			</div>
 			<div class="explorer-move">
 				<div class="explorer-move-name"></div>
 				<div class="explorer-move-use"></div>
 				<div class="explorer-bar"></div>
+				<div class="explorer-percent"></div>
 			</div>
 			<div class="explorer-move">
 				<div class="explorer-move-name"></div>
 				<div class="explorer-move-use"></div>
 				<div class="explorer-bar"></div>
+				<div class="explorer-percent"></div>
 			</div>
 			<div class="explorer-move">
 				<div class="explorer-move-name"></div>
 				<div class="explorer-move-use"></div>
 				<div class="explorer-bar"></div>
+				<div class="explorer-percent"></div>
 			</div>
 			<div class="explorer-move">
 				<div class="explorer-move-name"></div>
 				<div class="explorer-move-use"></div>
 				<div class="explorer-bar"></div>
+				<div class="explorer-percent"></div>
 			</div>
 			<div class="explorer-move">
 				<div class="explorer-move-name"></div>
 				<div class="explorer-move-use"></div>
 				<div class="explorer-bar"></div>
+				<div class="explorer-percent"></div>
 			</div>
 			<div class="explorer-move">
 				<div class="explorer-move-name"></div>
 				<div class="explorer-move-use"></div>
 				<div class="explorer-bar"></div>
+				<div class="explorer-percent"></div>
 			</div>
 			<div class="explorer-move">
 				<div class="explorer-move-name"></div>
 				<div class="explorer-move-use"></div>
 				<div class="explorer-bar"></div>
+				<div class="explorer-percent"></div>
 			</div>
 			<div class="explorer-move">
 				<div class="explorer-move-name"></div>
 				<div class="explorer-move-use"></div>
 				<div class="explorer-bar"></div>
+				<div class="explorer-percent"></div>
 			</div>
 			<div class="explorer-move">
 				<div class="explorer-move-name"></div>
 				<div class="explorer-move-use"></div>
 				<div class="explorer-bar"></div>
+				<div class="explorer-percent"></div>
 			</div>
 			<div class="explorer-move">
 				<div class="explorer-move-name"></div>
 				<div class="explorer-move-use"></div>
 				<div class="explorer-bar"></div>
+				<div class="explorer-percent"></div>
 			</div>
 			<div class="explorer-move">
 				<div class="explorer-move-name"></div>
 				<div class="explorer-move-use"></div>
 				<div class="explorer-bar"></div>
+				<div class="explorer-percent"></div>
 			</div>
 			<div class="explorer-move">
 				<div class="explorer-move-name"></div>
 				<div class="explorer-move-use"></div>
 				<div class="explorer-bar"></div>
+				<div class="explorer-percent"></div>
 			</div>
 			<div class="explorer-move">
 				<div class="explorer-move-name"></div>
 				<div class="explorer-move-use"></div>
 				<div class="explorer-bar"></div>
+				<div class="explorer-percent"></div>
 			</div>
 			<div class="explorer-move">
 				<div class="explorer-move-name"></div>
 				<div class="explorer-move-use"></div>
 				<div class="explorer-bar"></div>
+				<div class="explorer-percent"></div>
 			</div>
 			<div class="explorer-move">
 				<div class="explorer-move-name"></div>
 				<div class="explorer-move-use"></div>
 				<div class="explorer-bar"></div>
+				<div class="explorer-percent"></div>
 			</div>
 			<div class="explorer-move">
 				<div class="explorer-move-name"></div>
 				<div class="explorer-move-use"></div>
 				<div class="explorer-bar"></div>
+				<div class="explorer-percent"></div>
 			</div>
 			<div class="explorer-move">
 				<div class="explorer-move-name"></div>
 				<div class="explorer-move-use"></div>
 				<div class="explorer-bar"></div>
+				<div class="explorer-percent"></div>
 			</div>
 			<div class="explorer-move">
 				<div class="explorer-move-name"></div>
 				<div class="explorer-move-use"></div>
 				<div class="explorer-bar"></div>
+				<div class="explorer-percent"></div>
 			</div>
 		</div>
 	</div>
@@ -310,9 +337,6 @@
 		</div>
 	</div>
 	<br>
-	<button onclick="getProbabilities()">Get probabilities!</button>
-	<br>
-	<br>
 	<div>
 		<table id="probabilities">
 			<thead>
@@ -322,6 +346,7 @@
 					<th>Exclude</th>
 				</tr>
 			</thead>
+			<tbody></tbody>
 		</table>
 	</div>
 	<br>
@@ -339,6 +364,7 @@
 	let totals = document.getElementById("totals");
 	let whiteProbabilities = [];
 	let blackProbabilities = [];
+	let currentData = null;
 
 	$("[name=database]").change(function() {
 		if(this.checked && this.value === "lichess") {
@@ -367,14 +393,12 @@
 	window.onkeydown = function(e) {
 		if(e.key === "f") {
 			board.flip();
+		} else if(e.key === "ArrowLeft") {
+			undoMove();
 		}
 	};
 	document.getElementById("undo").onclick = function() {
-		chess.undo();
-		board.position(chess.fen());
-		pgn.text(chess.pgn().replace(/\. /g, "."));
-		opening.text(findOpeningName(chess.fen()));
-		getMoves();
+		undoMove();
 	};
 	document.getElementById("flip").onclick = function() {
 		board.flip();
@@ -385,16 +409,106 @@
 
 	getMoves();
 
+	function undoMove() {
+		chess.undo();
+		board.position(chess.fen());
+		pgn.text(chess.pgn().replace(/\. /g, "."));
+		opening.text(findOpeningName(chess.fen()));
+		//Remove row
+		let lastRow = probabilities.rows[probabilities.rows.length-1];
+		let excludedInput = lastRow.getElementsByTagName("input")[0];
+		if(!excludedInput.checked) {
+			excludedInput.click();
+		}
+
+		lastRow.parentNode.removeChild(lastRow);
+
+		if(probabilities.rows.length === 1) {
+			probabilities.style.display = "none";
+			whiteProbabilities = [];
+			blackProbabilities = [];
+		}
+
+		setTotals();
+
+		getMoves();
+	}
+
 	function onMove(from, to, piece, oldPos, newPos) {
 		let valid = chess.move({from, to, promotion: "q"});
 		if(valid) {
+			probabilities.style.display = "table";
 			pgn.text(chess.pgn().replace(/\. /g, "."));
 			opening.text(findOpeningName(chess.fen()));
+			//Adding row
+			let moves = chess.history({verbose: true});
+			let lastSan = moves[moves.length - 1].san;
+			let prob = getProbabilityOfLatestMove(lastSan);
+			let turn = chess.turn();
+
+			let tbody = probabilities.tBodies[0];
+			let tr = tbody.insertRow();
+			let td1 = tr.insertCell();
+			td1.innerText = lastSan;
+			let td2 = tr.insertCell();
+			td2.innerText = (100 * prob).toFixed(3) + "%";
+			let td3 = tr.insertCell();
+			let input = document.createElement("input");
+			input.type = "checkbox";
+			input.onclick = () => {
+				input.original = prob;
+				let inverse = 1 / prob;
+
+				if(input.checked) {
+					if(turn === "b") {
+						whiteProbabilities.push(inverse);
+					} else {
+						blackProbabilities.push(inverse);
+					}
+				} else {
+					if(turn === "b") {
+						whiteProbabilities.push(prob);
+					} else {
+						blackProbabilities.push(prob);
+					}
+				}
+				setTotals();
+			};
+			td3.className = "exclude";
+			td3.appendChild(input);
+
+			if(turn === "b") {
+				whiteProbabilities.push(prob);
+			} else {
+				blackProbabilities.push(prob);
+			}
+			setTotals();
+
+			//Get new data
 			getMoves();
 		} else {
 			//Undo move on the board
 			return 'snapback';
 		}
+	}
+
+	function getProbabilityOfLatestMove(san) {
+		let totalUsage = 0;
+		let lastUsage = null;
+		for(let i = 0; i < currentData.moves.length; i++) {
+			let moveData = currentData.moves[i];
+			let moveTotalGames = moveData.white + moveData.draws + moveData.black;
+			totalUsage += moveTotalGames;
+			if(moveData.san === san) {
+				lastUsage = moveTotalGames;
+			}
+		}
+		let prob = lastUsage / totalUsage;
+		if(Number.isNaN(prob)) {
+			prob = 0; //If there are no moves, causes 0/0 which is NaN
+		}
+
+		return prob;
 	}
 
 	function findOpeningName(fen) {
@@ -415,89 +529,6 @@
 			}
 		}
 		return op;
-	}
-
-	async function getProbabilities() {
-		whiteProbabilities = [];
-		blackProbabilities = [];
-
-		if(chess.pgn().length === 0) {
-			return alert("You've got no moves!");
-		}
-
-		probabilities.style.display = "table";
-		for(let i = 0; i < probabilities.tBodies.length; i++) {
-			probabilities.removeChild(probabilities.tBodies[i]);
-		}
-		let tbody = probabilities.createTBody();
-
-		let tempGame = new Chess();
-		let moves = chess.history({verbose: true});
-
-		for(let i = 0; i < moves.length; i++) {
-			if(i > 0) {
-				await new Promise(r => setTimeout(r, 500)); //So we don't spam too much
-			}
-			let data = await fetch(generateURL(tempGame.fen())).then((r) => r.json());
-
-			let moveToPlay = moves[i].san;
-			let accumMoveCount = 0;
-			let reqMoveCount = 0;
-			for(let m = 0; m < data.moves.length; m++) {
-				let mm = data.moves[m];
-				let sum = mm.white + mm.draws + mm.black;
-				if(mm.san === moveToPlay) {
-					reqMoveCount = sum;
-				}
-				accumMoveCount += sum;
-			}
-			let probability = reqMoveCount / accumMoveCount;
-			if(Number.isNaN(probability)) {
-				probability = 0; //If there are no moves, causes 0/0 which is NaN
-			}
-
-			let tr = tbody.insertRow();
-			let td1 = tr.insertCell();
-			td1.innerText = moveToPlay;
-			let td2 = tr.insertCell();
-			td2.innerText = (100 * probability).toFixed(3) + "%";
-			let td3 = tr.insertCell();
-			let input = document.createElement("input");
-			input.type = "checkbox";
-			input.onclick = () => {
-				input.original = probability;
-				let inverse = 1 / probability;
-
-				if(input.checked) {
-					if(i % 2 === 0) {
-						whiteProbabilities.push(inverse);
-					} else {
-						blackProbabilities.push(inverse);
-					}
-				} else {
-					if(i % 2 === 0) {
-						whiteProbabilities.push(probability);
-					} else {
-						blackProbabilities.push(probability);
-					}
-				}
-				setTotals();
-			};
-			td3.className = "exclude";
-			td3.appendChild(input);
-
-
-			if(i % 2 === 0) {
-				whiteProbabilities.push(probability);
-			} else {
-				blackProbabilities.push(probability);
-			}
-
-			tempGame.move(moveToPlay);
-		}
-
-		//Totals
-		setTotals();
 	}
 
 	function setTotals() {
@@ -532,6 +563,7 @@
 
 	function processLichessExplorerData(data) {
 		//Moves
+		currentData = data;
 		explorerMoves.style.display = "block";
 		let moveArray = explorerMoves.getElementsByClassName("explorer-move");
 		for(let i = 0; i < moveArray.length; i++) {
@@ -539,11 +571,14 @@
 			let moveBar = moveContainer.getElementsByClassName("explorer-bar")[0];
 			let moveName = moveContainer.getElementsByClassName("explorer-move-name")[0];
 			let moveUse = moveContainer.getElementsByClassName("explorer-move-use")[0];
+			let movePercent = moveContainer.getElementsByClassName("explorer-percent")[0];
 			removeLichessExplorerBar(moveBar);
-			moveName.textContent = "";
-			moveUse.textContent = "";
+			moveName.innerText = "";
+			moveUse.innerText = "";
+			movePercent.innerText = "";
 			moveContainer.style.display = "none";
 		}
+		let totalUsage = 0;
 		for(let i = 0; i < data.moves.length; i++) {
 			let moveData = data.moves[i];
 			let moveContainer = moveArray[i];
@@ -553,8 +588,16 @@
 			let moveName = moveContainer.getElementsByClassName("explorer-move-name")[0];
 			let moveUse = moveContainer.getElementsByClassName("explorer-move-use")[0];
 			createLichessExplorerBar(moveBar, moveData.white, moveData.draws, moveData.black, moveTotalGames);
-			moveName.textContent = moveData.san;
-			moveUse.textContent = moveTotalGames.toLocaleString();
+			moveName.innerText = moveData.san;
+			moveUse.innerText = moveTotalGames.toLocaleString();
+			totalUsage += moveTotalGames;
+		}
+		for(let i = 0; i < data.moves.length; i++) {
+			let moveData = data.moves[i];
+			let moveTotalGames = moveData.white + moveData.draws + moveData.black;
+			let moveContainer = moveArray[i];
+			let movePercent = moveContainer.getElementsByClassName("explorer-percent")[0];
+			movePercent.innerText = (100 * moveTotalGames / totalUsage).toFixed(3) + "%";
 		}
 	}
 

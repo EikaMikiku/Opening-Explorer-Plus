@@ -4,6 +4,7 @@
 	<title>Line usage calculator</title>
 	<script src="js/jquery-3.5.0.min.js"></script>
 	<script src="js/chess.js"></script>
+	<script src="js/openings.js"></script>
 	<script src="js/chessboard-1.0.0.min.js"></script>
 	<link rel="stylesheet" type="text/css" href="css/chessboard-1.0.0.min.css">
 
@@ -23,7 +24,7 @@
 		#board {
 			width: 412px;
 		}
-		#pgn {
+		#opening, #pgn {
 			display: inline;
 			font-size: 1.25em;
 		}
@@ -245,6 +246,9 @@
 		<button id="anal">Analysis</button>
 	</div>
 
+	<label class="bold">Opening name:</label>
+	<div id="opening"></div>
+	<br>
 	<label class="bold">Current PGN:</label>
 	<div id="pgn"></div>
 	<br>
@@ -330,6 +334,7 @@
 	let lichessRadio = $("#lichessRadio");
 	let explorerMoves = document.getElementById("explorer-moves");
 	let pgn = $("#pgn");
+	let opening = $("#opening");
 	let probabilities = document.getElementById("probabilities");
 	let totals = document.getElementById("totals");
 	let whiteProbabilities = [];
@@ -368,6 +373,7 @@
 		chess.undo();
 		board.position(chess.fen());
 		pgn.text(chess.pgn().replace(/\. /g, "."));
+		opening.text(findOpeningName(chess.fen()));
 		getMoves();
 	};
 	document.getElementById("flip").onclick = function() {
@@ -383,11 +389,32 @@
 		let valid = chess.move({from, to, promotion: "q"});
 		if(valid) {
 			pgn.text(chess.pgn().replace(/\. /g, "."));
+			opening.text(findOpeningName(chess.fen()));
 			getMoves();
 		} else {
 			//Undo move on the board
 			return 'snapback';
 		}
+	}
+
+	function findOpeningName(fen) {
+		let tempGame = new Chess();
+		let moves = chess.history({verbose: true});
+		let op = "";
+		for(let i = 0; i < moves.length; i++) {
+			let moveToPlay = moves[i].san;
+			tempGame.move(moveToPlay);
+			let fen = tempGame.fen();
+			//Removing evenrything except positions
+			fen = fen.split(" ")[0];
+			let keys = Object.keys(window.CHESS_OPENINGS);
+			for(let k = 0; k < keys.length; k++) {
+				if(keys[k].includes(fen)) {
+					op = window.CHESS_OPENINGS[keys[k]].name;
+				}
+			}
+		}
+		return op;
 	}
 
 	async function getProbabilities() {

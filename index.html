@@ -532,10 +532,14 @@
 	}
 
 	function setTotals() {
+		whiteProbabilities = whiteProbabilities.filter(x => x !== 0 && x !== Infinity);
+		blackProbabilities = blackProbabilities.filter(x => x !== 0 && x !== Infinity);
+
 		if(blackProbabilities.length === 0) {
 			totals.innerHTML = "Not enough moves in the line to calculate anything sensible.";
 			return;
 		}
+
 		let wpTotal = whiteProbabilities.reduce((s, a) => s * a);
 		let bpTotal = blackProbabilities.reduce((s, a) => s * a);
 		let whtml = `If you are white, and aim to play the line, chances to reach this position with given black play is <b>${(bpTotal*100).toFixed(3)}%</b>.`;
